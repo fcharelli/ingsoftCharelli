@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
@@ -11,10 +12,16 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// Initialize PostgreSQL pool (usar variables de entorno si existen)
+// Initialize PostgreSQL pool for AWS RDS
 const db = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.PGSSLMODE === 'require' ? { rejectUnauthorized: false } : false
+  host: process.env.DB_HOST || 'your-rds-endpoint.region.rds.amazonaws.com',
+  user: process.env.DB_USER || 'your_db_username',
+  password: process.env.DB_PASSWORD || 'your_password',
+  database: process.env.DB_NAME || 'your_database_name',
+  port: process.env.DB_PORT || 5432,
+  ssl: {
+    rejectUnauthorized: false // For development - use proper SSL in production
+  }
 });
 
 // Create tables + seed data (ejecutado al inicio)
